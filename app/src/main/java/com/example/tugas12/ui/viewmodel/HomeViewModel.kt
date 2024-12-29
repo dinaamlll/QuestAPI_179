@@ -1,14 +1,16 @@
 package com.example.tugas12.ui.viewmodel
 
-import android.net.http.HttpException
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.tugas12.model.Mahasiswa
 import com.example.tugas12.repository.MahasiswaRepository
+import kotlinx.coroutines.launch
 import java.io.IOException
-
+import coil.network.HttpException
 
 sealed class HomeUiState{
     data class Success(val mahasiswa: List<Mahasiswa>) : HomeUiState()
@@ -21,7 +23,7 @@ class HomeViewModel(private val mhs: MahasiswaRepository) : ViewModel(){
     init {
         getMhs()
     }
-}
+
 fun getMhs(){
     viewModelScope.launch {
         mhsUiState = try {
@@ -32,4 +34,16 @@ fun getMhs(){
             HomeUiState.Error
         }
     }
+}
+fun deleteMhs(nim: String) {
+    viewModelScope.launch {
+        try {
+            mhs.deleteMahasiswa(nim)
+        } catch (e: IOException) {
+            HomeUiState.Error
+        } catch (e: HttpException) {
+            HomeUiState.Error
+        }
+    }
+}
 }
