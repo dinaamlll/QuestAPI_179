@@ -25,6 +25,7 @@ import com.example.tugas12.ui.navigation.DestinasiNavigasi
 import com.example.tugas12.ui.viewmodel.InsertUiEvent
 import com.example.tugas12.ui.viewmodel.InsertUiState
 import com.example.tugas12.ui.viewmodel.InsertViewModel
+import com.example.tugas12.ui.viewmodel.PenyediaViewModel
 import kotlinx.coroutines.launch
 
 object DestinasiEntry : DestinasiNavigasi { //untuk mendefinisikan rute dan judul yang akan ditampilkan pada tampilan "Entry Mahasiswa"
