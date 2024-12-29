@@ -1,5 +1,7 @@
 package com.example.tugas12.ui.view
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
@@ -11,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tugas12.ui.customwidget.CostumeTopAppBar
 import com.example.tugas12.ui.navigation.DestinasiNavigasi
 import com.example.tugas12.ui.viewmodel.InsertViewModel
+import kotlinx.coroutines.launch
 
 object DestinasiEntry : DestinasiNavigasi { //untuk mendefinisikan rute dan judul yang akan ditampilkan pada tampilan "Entry Mahasiswa"
     override val route = "item_entry"
@@ -37,8 +40,23 @@ fun EntryMhsScreen(
             )
         }
     ) { inneePadding ->
+        EntryBody(
+            insertUiState = viewModel.uiState,
+            onSiswaValueChange = viewModel::updateInsertMhsState,
+            onSaveClick = {
+                coroutineScope.launch {
+                    viewModel.insertMhs()
+                    navigateBack()
+                }
+            },
+            modifier = Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+        )
     }
 }
+
 
 
 
