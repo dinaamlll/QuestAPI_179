@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -21,9 +22,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,37 +36,35 @@ import com.example.tugas12.ui.viewmodel.DetailUiState
 import com.example.tugas12.ui.viewmodel.DetailViewModel
 import com.example.tugas12.ui.viewmodel.PenyediaViewModel
 
+
 object DestinasiDetail : DestinasiNavigasi {
-    override val route = "item_detail"
+    override val route = "detail"
     override val titleRes = "Detail Mhs"
+    const val NIM = "nim"
+    val routeWithArg = "$route/{$NIM}"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
     nim: String,
+    modifier: Modifier = Modifier,
     navigateBack: () -> Unit,
-    onClick: () -> Unit,
+    onEditClick: (String) -> Unit = { },
     viewModel: DetailViewModel = viewModel(factory = PenyediaViewModel.Factory),
 ){
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val uiState = viewModel.detailUiState.collectAsState().value
-    LaunchedEffect(nim) {
-        viewModel.getMahasiswabyNim(nim)
-    }
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier,
         topBar = {
             CostumeTopAppBar(
                 title = DestinasiDetail.titleRes,
                 canNavigateBack = true,
-                scrollBehavior = scrollBehavior,
                 navigateUp = navigateBack
             )
 },
 floatingActionButton = {
     FloatingActionButton(
-        onClick = onClick,
+        onClick = { onEditClick(nim) },
         shape = MaterialTheme.shapes.medium,
         modifier = Modifier.padding(16.dp)
     ) {
@@ -73,32 +72,50 @@ floatingActionButton = {
     }
 },
     ) { innerPadding ->
-        when (uiState) {
-            is DetailUiState.Loading -> {
-                Text("Loading...", Modifier.fillMaxSize())
-            }
-            is DetailUiState.Success -> {
-                val mahasiswa = (uiState as DetailUiState.Success).mahasiswa
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    ItemDetailMhs(mahasiswa = mahasiswa)
-                }
-            }
-            is DetailUiState.Error -> {
-                Text(
-                    text = "Error: Gagal memuat data. Silakan coba lagi.",
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.error
-                )
+        val detailUiState by viewModel.detailUiState.collectAsState()
+
+        BodyDetailMhs(
+            modifier = Modifier.padding(innerPadding),
+            detailUiState = detailUiState,
+            retryAction = { viewModel.getDetailMahasiswa() }
+        )
+    }
+}
+@Composable
+fun BodyDetailMhs(
+    modifier: Modifier = Modifier,
+    detailUiState: DetailUiState,
+    retryAction: () -> Unit = {}
+) {
+    when (detailUiState) {
+        is DetailUiState.Loading -> {
+            // Menampilkan gambar loading saat data sedang dimuat
+            OnLoading(modifier = modifier.fillMaxSize())
+        }
+        is DetailUiState.Success -> {
+            // Menampilkan detail mahasiswa jika berhasil
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                ItemDetailMhs(mahasiswa = detailUiState.mahasiswa)
             }
         }
+        is DetailUiState.Error -> {
+            // Menampilkan error jika data gagal dimuat
+            OnError(
+                retryAction = retryAction,
+                modifier = modifier.fillMaxSize()
+            )
+        }
+        else -> {
+            // Menangani kasus yang tidak terduga (optional, jika Anda ingin menangani hal ini)
+            // Anda bisa menambahkan logika untuk menangani kesalahan yang tidak diketahui
+            Text("Unexpected state encountered")
+        }
     }
+
 }
     @Composable
     fun ItemDetailMhs(
@@ -107,12 +124,8 @@ floatingActionButton = {
     ) {
         Card(
             modifier = modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            shape = RoundedCornerShape(14.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 ComponentDetailMhs(judul = "NIM", isinya = mahasiswa.nim)
