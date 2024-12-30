@@ -1,76 +1,77 @@
 package com.example.tugas12.ui.view
 
-import androidx.compose.foundation.layout.Arrangement
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tugas12.model.Mahasiswa
+import com.example.tugas12.ui.viewmodel.PenyediaViewModel
 import com.example.tugas12.ui.customwidget.CostumeTopAppBar
 import com.example.tugas12.ui.navigation.DestinasiNavigasi
 import com.example.tugas12.ui.viewmodel.DetailUiState
 import com.example.tugas12.ui.viewmodel.DetailViewModel
-import com.example.tugas12.ui.viewmodel.PenyediaViewModel
 
 
 object DestinasiDetail : DestinasiNavigasi {
-    override val route = "detail"
-    override val titleRes = "Detail Mhs"
-    const val NIM = "nim"
-    val routeWithArg = "$route/{$NIM}"
+    override val route = "detail" // base route
+    const val NIM = "nim" // Nama parameter untuk nim
+    val routesWithArg = "$route/{$NIM}" // Route yang menerima nim sebagai argumen
+    override val titleRes = "Detail Mhs" // Title untuk halaman ini
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(
+fun DetailView(
     nim: String,
     modifier: Modifier = Modifier,
-    navigateBack: () -> Unit,
-    onEditClick: (String) -> Unit = { },
     viewModel: DetailViewModel = viewModel(factory = PenyediaViewModel.Factory),
-){
+    onEditClick: (String) -> Unit = {},
+    navigateBack:()->Unit,
+) {
     Scaffold(
-        modifier = modifier,
         topBar = {
             CostumeTopAppBar(
                 title = DestinasiDetail.titleRes,
                 canNavigateBack = true,
-                navigateUp = navigateBack
+
+                navigateUp = navigateBack,
+                onRefresh = { viewModel.getDetailMahasiswa() } // Trigger refresh action on refresh
             )
-},
-floatingActionButton = {
-    FloatingActionButton(
-        onClick = { onEditClick(nim) },
-        shape = MaterialTheme.shapes.medium,
-        modifier = Modifier.padding(16.dp)
-    ) {
-        Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit Mahasiswa")
-    }
-},
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { onEditClick(nim) },
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit Mahasiswa"
+                )
+            }
+        }
     ) { innerPadding ->
         val detailUiState by viewModel.detailUiState.collectAsState()
 
@@ -81,6 +82,7 @@ floatingActionButton = {
         )
     }
 }
+
 @Composable
 fun BodyDetailMhs(
     modifier: Modifier = Modifier,
@@ -117,60 +119,53 @@ fun BodyDetailMhs(
     }
 
 }
-    @Composable
-    fun ItemDetailMhs(
-        modifier: Modifier = Modifier,
-        mahasiswa: Mahasiswa
+
+@Composable
+fun ItemDetailMhs(
+    mahasiswa: Mahasiswa
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
     ) {
-        Card(
-            modifier = modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                ComponentDetailMhs(judul = "NIM", isinya = mahasiswa.nim)
-                Spacer(modifier = Modifier.padding(8.dp))
-
-                ComponentDetailMhs(judul = "Nama", isinya = mahasiswa.nama)
-                Spacer(modifier = Modifier.padding(4.dp))
-
-                ComponentDetailMhs(judul = "Alamat", isinya = mahasiswa.alamat)
-                Spacer(modifier = Modifier.padding(4.dp))
-
-                ComponentDetailMhs(judul = "Jenis Kelamin", isinya = mahasiswa.jenisKelamin)
-                Spacer(modifier = Modifier.padding(4.dp))
-
-                ComponentDetailMhs(judul = "Kelas", isinya = mahasiswa.kelas)
-                Spacer(modifier = Modifier.padding(4.dp))
-
-                ComponentDetailMhs(judul = "Angkatan", isinya = mahasiswa.angkatan)
-            }
+        Column(modifier = Modifier.padding(16.dp)) {
+            ComponentDetailMhs(judul = "NIM", isinya = mahasiswa.nim)
+            Spacer(modifier = Modifier.padding(4.dp))
+            ComponentDetailMhs(judul = "Nama", isinya = mahasiswa.nama)
+            Spacer(modifier = Modifier.padding(4.dp))
+            ComponentDetailMhs(judul = "Alamat", isinya = mahasiswa.alamat)
+            Spacer(modifier = Modifier.padding(4.dp))
+            ComponentDetailMhs(judul = "Jenis Kelamin", isinya = mahasiswa.jenisKelamin)
+            Spacer(modifier = Modifier.padding(4.dp))
+            ComponentDetailMhs(judul = "Kelas", isinya = mahasiswa.kelas)
+            Spacer(modifier = Modifier.padding(4.dp))
+            ComponentDetailMhs(judul = "Angkatan", isinya = mahasiswa.angkatan)
         }
     }
+}
 
-    @Composable
-    fun ComponentDetailMhs(
-        modifier: Modifier = Modifier,
-        judul: String,
-        isinya: String,
+@Composable
+fun ComponentDetailMhs(
+    judul: String,
+    isinya: String
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start
     ) {
-        Column(
-            horizontalAlignment = Alignment.Start,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "$judul :",
-                style = MaterialTheme.typography.titleMedium.copy(
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold)
-            )
-            Text(
-                text = isinya,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 18.sp
-                ))
-        }
+        Text(
+            text = "$judul :",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Gray
+        )
+        Text(
+            text = isinya,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
     }
-
+}

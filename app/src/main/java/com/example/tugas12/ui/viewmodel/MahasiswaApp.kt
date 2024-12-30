@@ -13,7 +13,7 @@ import com.example.tugas12.ui.navigation.PengelolaHalaman
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MahasiswaApp(modifier: Modifier = Modifier) {
+fun MahasiswaApp(modifier: Modifier = Modifier){
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold (
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),

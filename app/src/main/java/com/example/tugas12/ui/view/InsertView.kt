@@ -20,28 +20,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tugas12.ui.viewmodel.PenyediaViewModel
 import com.example.tugas12.ui.customwidget.CostumeTopAppBar
 import com.example.tugas12.ui.navigation.DestinasiNavigasi
 import com.example.tugas12.ui.viewmodel.InsertUiEvent
 import com.example.tugas12.ui.viewmodel.InsertUiState
 import com.example.tugas12.ui.viewmodel.InsertViewModel
-import com.example.tugas12.ui.viewmodel.PenyediaViewModel
 import kotlinx.coroutines.launch
 
-object DestinasiEntry : DestinasiNavigasi { //untuk mendefinisikan rute dan judul yang akan ditampilkan pada tampilan "Entry Mahasiswa"
+object DestinasiEntry: DestinasiNavigasi {
     override val route = "item_entry"
     override val titleRes = "Entry Mhs"
+
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntryMhsScreen(
-    navigateBack: () -> Unit,
+    navigateBack:()->Unit,
     modifier: Modifier = Modifier,
     viewModel: InsertViewModel = viewModel(factory = PenyediaViewModel.Factory)
-) {
+){
     val coroutineScope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -55,7 +56,7 @@ fun EntryMhsScreen(
     ) { innerPadding ->
         EntryBody(
             insertUiState = viewModel.uiState,
-            onSiswaValueChange = viewModel::updateInsertMhsState,
+            onMahasiswaValueChange = viewModel::updateInsertMhsState,
             onSaveClick = {
                 coroutineScope.launch {
                     viewModel.insertMhs()
@@ -69,10 +70,11 @@ fun EntryMhsScreen(
         )
     }
 }
+
 @Composable
-fun EntryBody( //untuk menampilkan form input dan tombol simpan
+fun EntryBody(
     insertUiState: InsertUiState,
-    onSiswaValueChange: (InsertUiEvent) -> Unit,
+    onMahasiswaValueChange: (InsertUiEvent) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -82,7 +84,7 @@ fun EntryBody( //untuk menampilkan form input dan tombol simpan
     ) {
         FormInput(
             insertUiEvent = insertUiState.insertUiEvent,
-            onValueChange = onSiswaValueChange,
+            onValueChange = onMahasiswaValueChange,
             modifier = Modifier.fillMaxWidth()
         )
         Button(
@@ -94,77 +96,84 @@ fun EntryBody( //untuk menampilkan form input dan tombol simpan
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+
 fun FormInput(
     insertUiEvent: InsertUiEvent,
-    modifier: Modifier = Modifier,
-    onValueChange: (InsertUiEvent) -> Unit = {},
+    modifier: Modifier =Modifier,
+    onValueChange:(InsertUiEvent)->Unit = {},
     enabled: Boolean = true
-) {
+){
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         OutlinedTextField(
             value = insertUiEvent.nama,
-            onValueChange = { onValueChange(insertUiEvent.copy(nama = it))},
-            label = { Text("Nama")},
+            onValueChange = {onValueChange(insertUiEvent.copy(nama = it))},
+            label = { Text("Nama") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
+
         OutlinedTextField(
             value = insertUiEvent.nim,
-            onValueChange = { onValueChange(insertUiEvent.copy(nim = it))},
-            label = { Text("NIM")},
+            onValueChange = {onValueChange(insertUiEvent.copy(nim = it))},
+            label = { Text("NIM") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
+
         OutlinedTextField(
             value = insertUiEvent.jenisKelamin,
-            onValueChange = { onValueChange(insertUiEvent.copy(jenisKelamin = it))},
-            label = { Text("Jenis Kelamin")},
+            onValueChange = {onValueChange(insertUiEvent.copy(jenisKelamin = it))},
+            label = { Text("Jenis Kelamin") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
+
         OutlinedTextField(
             value = insertUiEvent.alamat,
-            onValueChange = { onValueChange(insertUiEvent.copy(alamat = it))},
-            label = { Text("Alamat")},
+            onValueChange = {onValueChange(insertUiEvent.copy(alamat = it))},
+            label = { Text("Alamat") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
+
         OutlinedTextField(
             value = insertUiEvent.kelas,
-            onValueChange = { onValueChange(insertUiEvent.copy(kelas = it))},
-            label = { Text("Kelas")},
+            onValueChange = {onValueChange(insertUiEvent.copy(kelas = it))},
+            label = { Text("Kelas") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
+
         OutlinedTextField(
             value = insertUiEvent.angkatan,
-            onValueChange = { onValueChange(insertUiEvent.copy(angkatan = it))},
-            label = { Text("Angkatan")},
+            onValueChange = {onValueChange(insertUiEvent.copy(angkatan = it))},
+            label = { Text("Angkatan") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
-        if(enabled){
+        if (enabled){
             Text(
                 text = "Isi Semua Data!",
                 modifier = Modifier.padding(12.dp)
             )
         }
+
         Divider(
             thickness = 8.dp,
             modifier = Modifier.padding(12.dp)
         )
+
     }
 }
-
-

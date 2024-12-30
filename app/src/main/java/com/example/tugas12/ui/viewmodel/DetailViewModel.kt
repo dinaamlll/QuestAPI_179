@@ -1,42 +1,67 @@
 package com.example.tugas12.ui.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tugas12.model.Mahasiswa
 import com.example.tugas12.repository.MahasiswaRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.example.tugas12.ui.view.DestinasiDetail
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import okio.IOException
-import retrofit2.HttpException
 
 sealed class DetailUiState {
-    object Loading : DetailUiState()
-    object Error : DetailUiState()
     data class Success(val mahasiswa: Mahasiswa) : DetailUiState()
+    object Error : DetailUiState()
+    object Loading : DetailUiState()
 }
 
-class DetailViewModel(private val mhs: MahasiswaRepository) : ViewModel() {
+class DetailViewModel(
+    savedStateHandle: SavedStateHandle,
+    private val mhs: MahasiswaRepository
+) : ViewModel() {
+
+    private val _nim: String = checkNotNull(savedStateHandle[DestinasiDetail.NIM])
+
+    // StateFlow untuk menyimpan status UI
     private val _detailUiState = MutableStateFlow<DetailUiState>(DetailUiState.Loading)
     val detailUiState: StateFlow<DetailUiState> = _detailUiState
 
-    fun getMahasiswabyNim(nim: String) {
+    init {
+        getDetailMahasiswa()
+    }
+
+    fun getDetailMahasiswa() {
         viewModelScope.launch {
-            _detailUiState.value = DetailUiState.Loading
             try {
-                val mahasiswa = mhs.getMahasiswabyNim(nim)
+                // Set loading state
+                _detailUiState.value = DetailUiState.Loading
+
+                // Fetch mahasiswa data dari repository
+                val mahasiswa = mhs.getMahasiswabyNim(_nim)
+
                 if (mahasiswa != null) {
+                    // Jika data ditemukan, emit sukses
                     _detailUiState.value = DetailUiState.Success(mahasiswa)
                 } else {
+                    // Jika data tidak ditemukan, emit error
                     _detailUiState.value = DetailUiState.Error
                 }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                _detailUiState.value = DetailUiState.Error
-            } catch (e: HttpException) {
-                e.printStackTrace()
+            } catch (e: Exception) {
+                // Emit error jika terjadi exception
                 _detailUiState.value = DetailUiState.Error
             }
         }
     }
+}
+
+//memindahkan data dari entity ke ui
+fun Mahasiswa.toDetailUiEvent(): InsertUiEvent {
+    return InsertUiEvent(
+        nim = nim,
+        nama = nama,
+        jenisKelamin = jenisKelamin,
+        alamat = alamat,
+        kelas = kelas,
+        angkatan = angkatan
+    )
 }

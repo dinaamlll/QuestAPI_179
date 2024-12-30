@@ -38,16 +38,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tugas12.R
 import com.example.tugas12.model.Mahasiswa
+import com.example.tugas12.ui.viewmodel.PenyediaViewModel
 import com.example.tugas12.ui.customwidget.CostumeTopAppBar
 import com.example.tugas12.ui.navigation.DestinasiNavigasi
 import com.example.tugas12.ui.viewmodel.HomeUiState
 import com.example.tugas12.ui.viewmodel.HomeViewModel
-import com.example.tugas12.ui.viewmodel.PenyediaViewModel
+
 
 object DestinasiHome: DestinasiNavigasi {
     override val route ="home"
     override val titleRes = "Home Mhs"
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -55,6 +57,7 @@ fun HomeScreen(
     modifier: Modifier=Modifier,
     onDetailClick: (String) -> Unit ={},
     viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
+
 ){
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
@@ -89,6 +92,7 @@ fun HomeScreen(
         )
     }
 }
+
 @Composable
 fun HomeStatus(
     homeUiState: HomeUiState,
@@ -99,6 +103,7 @@ fun HomeStatus(
 ){
     when (homeUiState){
         is HomeUiState.Loading-> OnLoading(modifier = modifier.fillMaxSize())
+
         is HomeUiState.Success ->
             if(homeUiState.mahasiswa.isEmpty()){
                 return Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center){
@@ -121,7 +126,6 @@ fun HomeStatus(
 /**
  * The home screen displaying the loading message.
  */
-
 @Composable
 fun OnLoading(modifier: Modifier = Modifier){
     Image(
@@ -130,6 +134,7 @@ fun OnLoading(modifier: Modifier = Modifier){
         contentDescription = stringResource(R.string.loading)
     )
 }
+
 /**
  * The home screen displaying error message with re-attempt button.
  */
@@ -151,6 +156,8 @@ fun OnError(retryAction:()->Unit, modifier: Modifier = Modifier){
         }
     }
 }
+
+
 @Composable
 fun MhsLayout(
     mahasiswa: List<Mahasiswa>,
@@ -173,9 +180,11 @@ fun MhsLayout(
                     onDeleteClick(mahasiswa)
                 }
             )
+
         }
     }
 }
+
 @Composable
 fun MhsCard(
     mahasiswa: Mahasiswa,
@@ -206,11 +215,13 @@ fun MhsCard(
                         contentDescription = null,
                     )
                 }
+
                 Text(
                     text = mahasiswa.nim,
                     style = MaterialTheme.typography.titleMedium
                 )
             }
+
             Text(
                 text = mahasiswa.kelas,
                 style = MaterialTheme.typography.titleMedium
