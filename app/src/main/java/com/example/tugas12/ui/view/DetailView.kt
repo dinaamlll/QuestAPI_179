@@ -19,15 +19,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tugas12.model.Mahasiswa
 import com.example.tugas12.ui.customwidget.CostumeTopAppBar
 import com.example.tugas12.ui.navigation.DestinasiNavigasi
+import com.example.tugas12.ui.viewmodel.DetailUiState
+import com.example.tugas12.ui.viewmodel.DetailViewModel
 import com.example.tugas12.ui.viewmodel.PenyediaViewModel
 
 object DestinasiDetail : DestinasiNavigasi {
@@ -44,7 +49,10 @@ fun DetailScreen(
     viewModel: DetailViewModel = viewModel(factory = PenyediaViewModel.Factory),
 ){
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState = viewModel.detailUiState.collectAsState().value
+    LaunchedEffect(nim) {
+        viewModel.getMahasiswabyNim(nim)
+    }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -152,4 +160,4 @@ floatingActionButton = {
                 ))
         }
     }
-}
+
